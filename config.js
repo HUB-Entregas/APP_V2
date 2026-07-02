@@ -4,7 +4,7 @@
 // (index.html) e pelo painel do administrador (admin.html).
 // ============================================================
 const CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbwP3Vm9gEr00t9DSBSNqt6e0lpDlQn2cn8kfje_d9BeFeFocOXROBWWCg7TfBDxyD3x/exec',
+  API_URL: 'https://script.google.com/macros/s/AKfycbyUDE6oOdOUFv_-rFF7dehLbS4OZKvnna6Rw9uw2od_evq_vVU0eu1wLHfXU_iMLkpi/exec',
   TOKEN: 'HUB-Entregas',
-  MOTORISTAS: ['Mello', 'Matheus Silva', 'Said', 'Vinicius', 'Thales', 'Joao', 'Pedro']
+  MOTORISTAS: ['Mello', 'Pedro', 'Said', 'Vinicius', 'Matheus Silva', 'Thales', 'Joao']
 };
