@@ -6,5 +6,5 @@
 const CONFIG = {
   API_URL: 'https://script.google.com/macros/s/AKfycbyR0Ye3os9AngMlrIt66zTH5AHw_BHZY5tRzgpNjrzvRohDVrNG2hvaSWfTn5KanmXL/exec',
   TOKEN: 'HUB-ENTREGAS',
-  MOTORISTAS: ['Motorista 1', 'Motorista 2', 'Motorista 3']
+  MOTORISTAS: ['Vinicius', 'Said', 'Matheus Silva', 'Joao', 'Thales', 'Mello', 'Pedro', 'Bruno']
 };
