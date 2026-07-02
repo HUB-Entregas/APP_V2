@@ -13,7 +13,8 @@
  * 7. Cole essa URL e a mesma senha no arquivo app.js do app (CONFIG).
  */
 
-var TOKEN = '$Assa2004';
+var TOKEN = 'HUB-Entregas';
+var ADMIN_SENHA = 'Pedro-Gay';
 var NOME_ABA = 'Entregas';
 var NOME_PASTA_DRIVE = 'Comprovantes de Entrega';
 
@@ -49,7 +50,35 @@ function doPost(e) {
 }
 
 function doGet(e) {
+  if (e.parameter.acao === 'listar') {
+    return listarComprovantes(e.parameter.senha);
+  }
   return ContentService.createTextOutput('API de comprovantes ativa ✅');
+}
+
+function listarComprovantes(senha) {
+  if (senha !== ADMIN_SENHA) {
+    return responder({ status: 'error', message: 'Senha incorreta' });
+  }
+  var aba = obterOuCriarAba();
+  var valores = aba.getDataRange().getValues();
+  valores.shift(); // remove a linha de cabeçalho
+
+  var registros = valores
+    .filter(function (linha) { return linha[1] || linha[2]; }) // ignora linhas vazias
+    .map(function (linha) {
+      return {
+        dataHora: linha[0] instanceof Date ? linha[0].toISOString() : String(linha[0]),
+        motorista: linha[1],
+        recebedor: linha[2],
+        observacao: linha[3],
+        foto: linha[4],
+        assinatura: linha[5]
+      };
+    })
+    .reverse(); // mais recentes primeiro
+
+  return responder({ status: 'ok', registros: registros });
 }
 
 function responder(obj) {

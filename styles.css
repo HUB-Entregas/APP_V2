@@ -318,3 +318,14 @@ textarea { resize: vertical; min-height: 64px; }
   border-color: var(--orange);
   border-style: dashed;
 }
+
+.rodape-discreto {
+  text-align: center;
+  padding: 22px 0 8px;
+}
+.rodape-discreto a {
+  color: var(--gray);
+  font-size: 11px;
+  text-decoration: none;
+}
+.rodape-discreto a:hover { text-decoration: underline; }

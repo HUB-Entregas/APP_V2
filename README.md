@@ -31,7 +31,9 @@ Apps Script (gratuitos), e você exporta/sincroniza para Excel quando quiser.
 3. Apague todo o código de exemplo (`function myFunction() {...}`) e cole o
    conteúdo do arquivo `backend/Code.gs` (está nesta pasta).
 4. Na linha `var TOKEN = 'TROQUE_ESTA_SENHA';`, troque por uma senha simples
-   que só você vai saber (ex: `entregas2026x`).
+   que só você vai saber (ex: `entregas2026x`). Faça o mesmo na linha
+   `var ADMIN_SENHA = 'TROQUE_ESTA_SENHA_DE_ADMIN';` — use uma senha
+   **diferente** da anterior, essa é a senha do painel de administrador.
 5. Clique em **Implantar → Nova implantação**.
    - Tipo: **App da Web**
    - Executar como: **Eu**
@@ -104,6 +106,28 @@ laranja/azul marinho fica na tela do celular.
 
 ---
 
+## Painel do administrador (só pelo computador)
+
+Depois de publicar o app (Passo 3), abra `https://seu-link/admin.html` no
+navegador do computador. Ele pede a senha de administrador (a que você
+definiu em `ADMIN_SENHA` no `Code.gs`) e mostra uma tabela com todos os
+comprovantes já sincronizados: data/hora, motorista, recebedor, observação
+e links para abrir a foto e a assinatura.
+
+- Tem busca por nome de recebedor ou motorista, e um botão "Atualizar" para
+  buscar comprovantes novos sem recarregar a página.
+- A senha não fica salva no navegador — se atualizar a página, precisa
+  digitar de novo. Isso é proposital, para não deixar sessão aberta em
+  computador compartilhado.
+- Não aparece nenhum botão de admin na tela do motorista; o link fica
+  discreto no rodapé do app (`Painel do administrador`), pra quem for admin
+  saber onde clicar.
+- Como a validação da senha acontece no próprio backend (Apps Script), quem
+  não souber a senha não consegue ver os dados — mesmo olhando o código do
+  site.
+
+---
+
 ## Como ver isso no Excel
 
 A planilha "Entregas" no Google Sheets já é a sua fonte de dados ao vivo.
@@ -130,14 +154,18 @@ te ajudo a montar essa versão também.
 
 ```
 entrega-app/
-├── index.html          → tela do app
-├── styles.css           → visual
-├── app.js                → lógica: fila offline, câmera, assinatura, sincronização
-├── sw.js                  → service worker (cache offline)
-├── manifest.json          → configuração do "instalar na tela inicial"
-├── icons/                  → ícones do app
+├── index.html          → tela do app do motorista
+├── admin.html            → painel do administrador (login + tabela)
+├── styles.css              → visual do app do motorista
+├── admin.css                → visual do painel do administrador
+├── config.js                  → URL do backend, senha do motorista e lista de motoristas
+├── app.js                       → lógica do motorista: fila offline, câmera, assinatura, sincronização
+├── admin.js                       → lógica do painel: login e listagem dos comprovantes
+├── sw.js                            → service worker (cache offline, só no app do motorista)
+├── manifest.json                     → configuração do "instalar na tela inicial"
+├── icons/                              → ícones do app
 └── backend/
-    └── Code.gs              → backend Google Apps Script (cole no Apps Script)
+    └── Code.gs                           → backend Google Apps Script (cole no Apps Script)
 ```
 
 ## Limites e pontos de atenção

@@ -1,12 +1,5 @@
-// ============================================================
-// CONFIGURAÇÃO — edite estas 3 linhas depois de publicar o
-// backend do Google Apps Script (veja o README.md).
-// ============================================================
-const CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbwxhxM3Gf3Q6tRpprR0-FqxaPnrS2TRZ7NctbcuC6J4q7DhNppYz_QaP5bcEsjb-nX2/exec',
-  TOKEN: '$Assa2004',
-  MOTORISTAS: ['Said', 'Vinicius', 'Matheus Mello', 'Matheus Silva', 'Thales']
-};
+// A configuração (API_URL, TOKEN, MOTORISTAS) vem de config.js,
+// incluído antes deste arquivo no index.html.
 
 // ============================================================
 // BANCO LOCAL (IndexedDB) — guarda os comprovantes no aparelho
