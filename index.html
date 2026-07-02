@@ -27,8 +27,17 @@
 
   <form id="formEntrega">
     <div class="campo">
-      <div class="eyebrow"><span class="num">01</span><label for="motorista">Motorista</label></div>
-      <select id="motorista" required></select>
+      <div class="eyebrow"><span class="num">01</span><label>Motorista</label></div>
+
+      <div id="motoristaAtual" class="motorista-atual hidden">
+        <span id="motoristaAtualNome"></span>
+        <button type="button" id="trocarMotorista">Trocar</button>
+      </div>
+
+      <div id="motoristaEscolha" class="motorista-escolha">
+        <p class="motorista-escolha-texto">Quem está usando este aparelho hoje?</p>
+        <div id="listaMotoristas" class="lista-motoristas"></div>
+      </div>
     </div>
 
     <div class="campo">

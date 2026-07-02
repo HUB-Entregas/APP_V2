@@ -329,3 +329,59 @@ textarea { resize: vertical; min-height: 64px; }
   text-decoration: none;
 }
 .rodape-discreto a:hover { text-decoration: underline; }
+
+/* --- seletor de motorista com memória --- */
+.motorista-atual {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: #fff;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  padding: 13px 14px;
+}
+.motorista-atual span {
+  font-weight: 700;
+  font-size: 15px;
+}
+.motorista-atual span::before { content: "👤 "; }
+
+#trocarMotorista {
+  background: none;
+  border: none;
+  color: var(--steel);
+  font-weight: 700;
+  font-size: 12.5px;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 4px;
+  flex-shrink: 0;
+}
+
+.motorista-escolha-texto {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin: 0 0 10px;
+}
+
+.lista-motoristas {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.botao-motorista {
+  width: 100%;
+  text-align: left;
+  padding: 14px 16px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  cursor: pointer;
+}
+.botao-motorista::before { content: "👤  "; }
+.botao-motorista:active { background: var(--paper-dim); border-color: var(--steel); }

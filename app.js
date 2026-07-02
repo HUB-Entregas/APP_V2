@@ -237,9 +237,56 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
-function preencherMotoristas() {
-  const select = document.getElementById('motorista');
-  select.innerHTML = CONFIG.MOTORISTAS.map((m) => `<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join('');
+// ============================================================
+// MOTORISTA — lembra a escolha no aparelho (localStorage) para
+// não pedir de novo toda vez que o app abrir.
+// ============================================================
+const CHAVE_MOTORISTA = 'comprovantes:motorista';
+let motoristaEscolhido = null;
+
+function obterMotoristaSalvo() {
+  try { return localStorage.getItem(CHAVE_MOTORISTA); } catch (e) { return null; }
+}
+
+function salvarMotoristaLocal(nome) {
+  try { localStorage.setItem(CHAVE_MOTORISTA, nome); } catch (e) { /* armazenamento indisponível — segue sem salvar */ }
+}
+
+function montarListaMotoristas() {
+  document.getElementById('listaMotoristas').innerHTML = CONFIG.MOTORISTAS
+    .map((nome) => `<button type="button" class="botao-motorista" data-nome="${escapeHtml(nome)}">${escapeHtml(nome)}</button>`)
+    .join('');
+}
+
+function definirMotoristaAtual(nome) {
+  motoristaEscolhido = nome;
+  salvarMotoristaLocal(nome);
+  document.getElementById('motoristaAtualNome').textContent = nome;
+  document.getElementById('motoristaAtual').classList.remove('hidden');
+  document.getElementById('motoristaEscolha').classList.add('hidden');
+}
+
+function mostrarEscolhaMotorista() {
+  document.getElementById('motoristaAtual').classList.add('hidden');
+  document.getElementById('motoristaEscolha').classList.remove('hidden');
+}
+
+function iniciarMotorista() {
+  montarListaMotoristas();
+
+  const salvo = obterMotoristaSalvo();
+  if (salvo && CONFIG.MOTORISTAS.includes(salvo)) {
+    definirMotoristaAtual(salvo);
+  } else {
+    mostrarEscolhaMotorista();
+  }
+
+  document.getElementById('listaMotoristas').addEventListener('click', (e) => {
+    const btn = e.target.closest('.botao-motorista');
+    if (btn) definirMotoristaAtual(btn.dataset.nome);
+  });
+
+  document.getElementById('trocarMotorista').addEventListener('click', mostrarEscolhaMotorista);
 }
 
 let fotoBase64 = null;
@@ -261,6 +308,7 @@ function iniciarFoto() {
 function validarFormulario() {
   const recebedor = document.getElementById('recebedor').value.trim();
   const erros = [];
+  if (!motoristaEscolhido) erros.push('Selecione quem está entregando.');
   if (!recebedor) erros.push('Informe o nome do recebedor.');
   if (!fotoBase64) erros.push('Tire uma foto do comprovante.');
   if (assinaturaVazia) erros.push('Colete a assinatura do cliente.');
@@ -281,7 +329,7 @@ async function aoEnviar(e) {
   const canvas = document.getElementById('assinatura');
   const registro = {
     id: gerarId(),
-    motorista: document.getElementById('motorista').value,
+    motorista: motoristaEscolhido,
     recebedor: document.getElementById('recebedor').value.trim(),
     observacao: document.getElementById('observacao').value.trim(),
     foto: fotoBase64,
@@ -317,7 +365,7 @@ function limparFormularioParaProximo() {
 // INICIALIZAÇÃO
 // ============================================================
 window.addEventListener('DOMContentLoaded', () => {
-  preencherMotoristas();
+  iniciarMotorista();
   iniciarAssinatura();
   iniciarFoto();
   document.getElementById('formEntrega').addEventListener('submit', aoEnviar);
