@@ -5,23 +5,32 @@
  * 1. Crie uma planilha nova no Google Sheets.
  * 2. Menu Extensões > Apps Script.
  * 3. Apague o código de exemplo e cole este arquivo inteiro.
- * 4. Troque o valor de TOKEN abaixo por uma senha só sua.
+ * 4. Troque o valor de TOKEN e ADMIN_SENHA abaixo por senhas só suas.
  * 5. Implantar > Nova implantação > tipo "App da Web".
  *    - Executar como: Eu
  *    - Quem pode acessar: Qualquer pessoa
  * 6. Autorize as permissões pedidas e copie a URL gerada.
- * 7. Cole essa URL e a mesma senha no arquivo app.js do app (CONFIG).
+ * 7. Cole essa URL e as senhas no arquivo config.js do app.
+ *
+ * Toda vez que editar este arquivo: Gerenciar implantações > editar
+ * (lápis) > Nova versão > Implantar — senão as mudanças não valem.
  */
 
-var TOKEN = 'HUB-Entregas';
-var ADMIN_SENHA = 'Pedro-Gay';
+var TOKEN = 'HUB-ENTREGAS';
+var ADMIN_SENHA = 'admin3917';
 var NOME_ABA = 'Entregas';
 var NOME_PASTA_DRIVE = 'Comprovantes de Entrega';
+var CABECALHO = ['Data/Hora', 'Motorista', 'Recebedor', 'Observações', 'Foto', 'Assinatura', 'ID', 'Finalizado'];
 
 function doPost(e) {
   try {
     var dados = JSON.parse(e.postData.contents);
 
+    if (dados.acao === 'finalizar') {
+      return marcarFinalizado(dados);
+    }
+
+    // envio normal de um novo comprovante (motorista)
     if (dados.token !== TOKEN) {
       return responder({ status: 'error', message: 'Token inválido' });
     }
@@ -40,13 +49,33 @@ function doPost(e) {
       dados.recebedor,
       dados.observacao || '',
       urlFoto,
-      urlAssinatura
+      urlAssinatura,
+      dados.id || '',
+      false
     ]);
 
     return responder({ status: 'ok' });
   } catch (err) {
     return responder({ status: 'error', message: String(err) });
   }
+}
+
+function marcarFinalizado(dados) {
+  if (dados.senha !== ADMIN_SENHA) {
+    return responder({ status: 'error', message: 'Senha incorreta' });
+  }
+  if (!dados.id) {
+    return responder({ status: 'error', message: 'Comprovante sem ID' });
+  }
+  var aba = obterOuCriarAba();
+  var valores = aba.getDataRange().getValues();
+  for (var i = 1; i < valores.length; i++) {
+    if (String(valores[i][6]) === String(dados.id)) {
+      aba.getRange(i + 1, 8).setValue(!!dados.valor); // coluna H = Finalizado
+      return responder({ status: 'ok' });
+    }
+  }
+  return responder({ status: 'error', message: 'Comprovante não encontrado' });
 }
 
 function doGet(e) {
@@ -67,18 +96,27 @@ function listarComprovantes(senha) {
   var registros = valores
     .filter(function (linha) { return linha[1] || linha[2]; }) // ignora linhas vazias
     .map(function (linha) {
+      var idDrive = extrairIdDrive(linha[4]);
       return {
         dataHora: linha[0] instanceof Date ? linha[0].toISOString() : String(linha[0]),
         motorista: linha[1],
         recebedor: linha[2],
         observacao: linha[3],
         foto: linha[4],
-        assinatura: linha[5]
+        fotoImg: idDrive ? ('https://drive.google.com/thumbnail?id=' + idDrive + '&sz=w1600') : '',
+        id: linha[6] ? String(linha[6]) : '',
+        finalizado: linha[7] === true || String(linha[7]).toLowerCase() === 'true'
       };
     })
     .reverse(); // mais recentes primeiro
 
   return responder({ status: 'ok', registros: registros });
+}
+
+function extrairIdDrive(url) {
+  if (!url) return '';
+  var m = String(url).match(/\/d\/([^/]+)/);
+  return m ? m[1] : '';
 }
 
 function responder(obj) {
@@ -95,10 +133,19 @@ function obterOuCriarPasta() {
 function obterOuCriarAba() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var aba = ss.getSheetByName(NOME_ABA);
-  if (aba) return aba;
-  aba = ss.insertSheet(NOME_ABA);
-  aba.appendRow(['Data/Hora', 'Motorista', 'Recebedor', 'Observações', 'Foto', 'Assinatura']);
-  aba.setFrozenRows(1);
+  if (!aba) {
+    aba = ss.insertSheet(NOME_ABA);
+    aba.appendRow(CABECALHO);
+    aba.setFrozenRows(1);
+    return aba;
+  }
+  // migração automática: garante que planilhas já existentes ganhem
+  // as colunas novas (ID, Finalizado) sem perder dados antigos
+  var ultimaColuna = aba.getLastColumn();
+  if (ultimaColuna < CABECALHO.length) {
+    aba.getRange(1, ultimaColuna + 1, 1, CABECALHO.length - ultimaColuna)
+      .setValues([CABECALHO.slice(ultimaColuna)]);
+  }
   return aba;
 }
 

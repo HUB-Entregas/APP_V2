@@ -99,6 +99,13 @@ function filtrarPorBusca(lista) {
   );
 }
 
+function botaoFinalizado(r) {
+  const finalizado = !!r.finalizado;
+  const semId = !r.id;
+  const atributos = semId ? 'disabled title="Comprovante antigo sem ID — não pode ser atualizado"' : '';
+  return `<button type="button" class="btn-finalizar ${finalizado ? 'is-finalizado' : ''}" data-id="${escapeHtml(r.id)}" data-finalizado="${finalizado}" ${atributos}>${finalizado ? '✔ Finalizado' : 'Finalizado'}</button>`;
+}
+
 function renderTabela(lista) {
   const corpo = el('tabelaCorpo');
   const vazio = el('vazioAviso');
@@ -117,10 +124,47 @@ function renderTabela(lista) {
       <td>${escapeHtml(r.motorista)}</td>
       <td>${escapeHtml(r.recebedor)}</td>
       <td>${escapeHtml(r.observacao)}</td>
-      <td>${r.foto ? `<a href="${escapeHtml(r.foto)}" target="_blank" rel="noopener">Ver foto</a>` : '—'}</td>
-      <td>${r.assinatura ? `<a href="${escapeHtml(r.assinatura)}" target="_blank" rel="noopener">Ver assinatura</a>` : '—'}</td>
+      <td>${r.fotoImg ? `<img src="${escapeHtml(r.fotoImg)}" class="miniatura" data-foto="${escapeHtml(r.fotoImg)}" alt="Foto do comprovante de ${escapeHtml(r.recebedor)}" loading="lazy">` : '—'}</td>
+      <td>${botaoFinalizado(r)}</td>
     </tr>`).join('');
   corpo.innerHTML = linhas;
+}
+
+function abrirFoto(url) {
+  if (!url) return;
+  el('modalImg').src = url;
+  el('modalFoto').classList.remove('hidden');
+}
+
+function fecharFoto() {
+  el('modalFoto').classList.add('hidden');
+  el('modalImg').src = '';
+}
+
+async function toggleFinalizado(id, novoValor) {
+  if (!id) return;
+  atualizarFinalizadoLocal(id, novoValor); // atualiza a tela na hora
+  try {
+    const resp = await fetch(CONFIG.API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ acao: 'finalizar', senha: senhaAtual, id, valor: novoValor })
+    });
+    const data = await resp.json();
+    if (data.status !== 'ok') {
+      atualizarFinalizadoLocal(id, !novoValor); // reverte se falhou
+      alert(data.message || 'Não foi possível atualizar. Tente novamente.');
+    }
+  } catch (err) {
+    atualizarFinalizadoLocal(id, !novoValor); // reverte se ficou offline
+    alert('Sem conexão no momento. Tente novamente.');
+  }
+}
+
+function atualizarFinalizadoLocal(id, valor) {
+  const registro = registrosCache.find((r) => r.id === id);
+  if (registro) registro.finalizado = valor;
+  renderTabela(filtrarPorBusca(registrosCache));
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -130,4 +174,23 @@ window.addEventListener('DOMContentLoaded', () => {
   el('btnAtualizar').addEventListener('click', atualizar);
   el('busca').addEventListener('input', () => renderTabela(filtrarPorBusca(registrosCache)));
   el('senhaInput').focus();
+
+  // delegação de eventos: clique na miniatura abre o modal,
+  // clique no botão alterna o status de finalizado
+  el('tabelaCorpo').addEventListener('click', (e) => {
+    const img = e.target.closest('.miniatura');
+    if (img) { abrirFoto(img.dataset.foto); return; }
+    const btn = e.target.closest('.btn-finalizar');
+    if (btn && !btn.disabled) {
+      toggleFinalizado(btn.dataset.id, btn.dataset.finalizado !== 'true');
+    }
+  });
+
+  el('modalFechar').addEventListener('click', fecharFoto);
+  el('modalFoto').addEventListener('click', (e) => {
+    if (e.target === el('modalFoto')) fecharFoto(); // clicou fora da imagem
+  });
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') fecharFoto();
+  });
 });

@@ -40,7 +40,7 @@
             <th>Recebedor</th>
             <th>Observação</th>
             <th>Foto</th>
-            <th>Assinatura</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody id="tabelaCorpo"></tbody>
@@ -48,6 +48,13 @@
     </div>
     <p id="vazioAviso" class="vazio hidden">Nenhum comprovante encontrado.</p>
   </section>
+
+  <div id="modalFoto" class="modal-overlay hidden">
+    <div class="modal-conteudo">
+      <button type="button" id="modalFechar" class="modal-fechar" aria-label="Fechar">✕</button>
+      <img id="modalImg" alt="Foto do comprovante">
+    </div>
+  </div>
 
 </main>
 

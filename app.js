@@ -139,6 +139,7 @@ async function enviarParaServidor(registro) {
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify({
       token: CONFIG.TOKEN,
+      id: registro.id,
       motorista: registro.motorista,
       recebedor: registro.recebedor,
       observacao: registro.observacao,

@@ -111,20 +111,27 @@ laranja/azul marinho fica na tela do celular.
 Depois de publicar o app (Passo 3), abra `https://seu-link/admin.html` no
 navegador do computador. Ele pede a senha de administrador (a que você
 definiu em `ADMIN_SENHA` no `Code.gs`) e mostra uma tabela com todos os
-comprovantes já sincronizados: data/hora, motorista, recebedor, observação
-e links para abrir a foto e a assinatura.
+comprovantes já sincronizados: data/hora, motorista, recebedor, observação,
+uma miniatura da foto e um botão de status.
 
+- **Foto:** clique na miniatura para abrir a imagem em tamanho grande, direto
+  na página (sem abrir outra aba). Clique fora da imagem, no ✕, ou aperte Esc
+  para fechar.
+- **Assinatura:** continua sendo salva normalmente no Google Drive e o link
+  fica gravado na planilha (coluna "Assinatura") — só não aparece mais no
+  painel, porque agora o espaço dela virou o botão de status.
+- **Finalizado:** clique no botão para marcar/desmarcar um comprovante como
+  finalizado. Fica salvo na planilha na hora (coluna "Finalizado"), então
+  vale pra qualquer computador que abrir o painel depois.
 - Tem busca por nome de recebedor ou motorista, e um botão "Atualizar" para
   buscar comprovantes novos sem recarregar a página.
 - A senha não fica salva no navegador — se atualizar a página, precisa
   digitar de novo. Isso é proposital, para não deixar sessão aberta em
   computador compartilhado.
-- Não aparece nenhum botão de admin na tela do motorista; o link fica
-  discreto no rodapé do app (`Painel do administrador`), pra quem for admin
-  saber onde clicar.
-- Como a validação da senha acontece no próprio backend (Apps Script), quem
-  não souber a senha não consegue ver os dados — mesmo olhando o código do
-  site.
+- Comprovantes enviados **antes** dessa atualização não têm um ID salvo na
+  planilha, então o botão "Finalizado" aparece desabilitado para eles. Dá pra
+  liberar manualmente: na planilha, preencha a coluna "ID" dessa linha com
+  qualquer texto único (ex: `antigo1`).
 
 ---
 
